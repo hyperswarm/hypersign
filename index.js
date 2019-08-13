@@ -3,6 +3,7 @@ const assert = require('assert')
 const {
   crypto_sign_keypair: createKeypair,
   crypto_sign_detached: sign,
+  crypto_generichash: hash,
   crypto_sign_PUBLICKEYBYTES: pkSize,
   crypto_sign_SECRETKEYBYTES: skSize,
   crypto_sign_BYTES: signSize,
@@ -14,13 +15,18 @@ const {
 const MAX_VALUE_SIZE = 1000
 
 class Hypersign {
-  salt (size = 32) {
+  salt (str = null, size = 32) {
+    if (typeof str === 'number') {
+      size = str
+      str = null
+    }
     assert(
       size >= 16 && size <= 64,
       'salt size must be between 16 and 64 bytes (inclusive)'
     )
     const salt = Buffer.alloc(size)
-    randomBytes(salt)
+    if (typeof str === 'string') hash(salt, Buffer.from(str))
+    else randomBytes(salt)
     return salt
   }
 

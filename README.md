@@ -20,9 +20,15 @@ extended.
 Use this method to generate an assymetric keypair.
 Returns an object with `{publicKey, secretKey}`. `publicKey` holds a public key buffer, `secretKey` holds a private key buffer.
 
-#### `salt(size = 32)`
+#### `salt([str, ]size = 32)`
 
-Utility method for creating a random salt value.
+Utility method for creating a random or hashed salt value.
+
+If called with a string the string will be hashed, to a
+generic hash of `size` length.
+
+If called without any inputs, or with a number, random 
+butes of `size` length will be generated.
 
 #### `sign(value, options)`
 

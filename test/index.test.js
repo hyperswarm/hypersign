@@ -1,7 +1,8 @@
 'use strict'
 const { test } = require('tap')
 const {
-  crypto_sign_verify_detached: verify
+  crypto_sign_verify_detached: verify,
+  crypto_generichash: hash
 } = require('sodium-universal')
 const hypersign = require('../')()
 
@@ -20,6 +21,18 @@ test('salt', async ({ is, throws }) => {
   is(hypersign.salt(64).length, 64)
   throws(() => hypersign.salt(15))
   throws(() => hypersign.salt(65))
+})
+
+test('salt string', async ({ is, throws }) => {
+  const salt = hypersign.salt('test')
+  is(salt instanceof Buffer, true)
+  is(salt.length, 32)
+  is(hypersign.salt(64).length, 64)
+  const check = Buffer.alloc(32)
+  hash(check, Buffer.from('test'))
+  is(salt.equals(check), true)
+  throws(() => hypersign.salt('test', 15))
+  throws(() => hypersign.salt('test', 65))
 })
 
 test('signable', async ({ is, same }) => {
