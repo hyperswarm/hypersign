@@ -1,7 +1,7 @@
 {
   "name": "@hyperswarm/hypersign",
   "version": "1.0.0",
-  "description": "",
+  "description": "Utility methods related to public key cryptography to be used with distributed mutable storage",
   "main": "index.js",
   "dependencies": {
     "sodium-universal": "^2.0.0"

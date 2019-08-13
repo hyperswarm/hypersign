@@ -1,5 +1,7 @@
 # @hyperswarm/hypersign
 
+Utility methods related to public key cryptography to be used with distributed mutable storage.
+
 ```
 npm install @hyperswarm/hypersign
 ```
