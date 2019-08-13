@@ -1,0 +1,28 @@
+{
+  "name": "@hyperswarm/hypersign",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "sodium-universal": "^2.0.0"
+  },
+  "devDependencies": {
+    "standard": "^13.1.0",
+    "tap": "^14.5.0"
+  },
+  "scripts": {
+    "test": "tap  -R classic test/*.test.js  && standard --fix",
+    "cov": "tap -R classic --100 test/*.test.js",
+    "ci": "standard && npm run cov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hyperswarm/hypersign.git"
+  },
+  "author": "David Mark Clements (@davidmarkclem)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hyperswarm/hypersign/issues"
+  },
+  "homepage": "https://github.com/hyperswarm/hypersign"
+}
