@@ -47,9 +47,9 @@ class Hypersign {
     assert(Buffer.isBuffer(secretKey), 'keypair.secretKey is required')
     assert(Buffer.isBuffer(publicKey), 'keypair.publicKey is required')
     const msg = this.signable(value, opts)
-    const sig = Buffer.alloc(signSize)
-    sign(sig, msg, secretKey)
-    return sig
+    const signature = Buffer.alloc(signSize)
+    sign(signature, msg, secretKey)
+    return signature
   }
 
   signable (value, opts = {}) {
