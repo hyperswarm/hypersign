@@ -1,6 +1,6 @@
 {
   "name": "@hyperswarm/hypersign",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Utility methods related to public key cryptography to be used with distributed mutable storage",
   "main": "index.js",
   "dependencies": {
