@@ -9,6 +9,8 @@ const {
   crypto_sign_BYTES: signSize,
   randombytes_buf: randomBytes
 } = require('sodium-universal')
+const uint64be = require('uint64be')
+const bencode = require('bencode')
 
 // VALUE_MAX_SIZE + packet overhead (i.e. the key etc.)
 // should be less than the network MTU, normally 1400 bytes
@@ -53,16 +55,25 @@ class Hypersign {
   }
 
   signable (value, opts = {}) {
-    const { salt } = opts
+    const { salt = Buffer.alloc(0), seq = 0, encoding = '' } = opts
     assert(Buffer.isBuffer(value), 'Value must be a buffer')
     assert(value.length <= VALUE_MAX_SIZE, `Value size must be <= ${VALUE_MAX_SIZE}`)
-    if (!salt) return value
-    assert(Buffer.isBuffer(salt), 'salt must be a buffer')
-    assert(
-      salt.length >= 16 && salt.length <= 64,
-      'salt size must be between 16 and 64 bytes (inclusive)'
-    )
-    return Buffer.concat([Buffer.from([salt.length]), salt, value])
+    if (salt.length > 0) {
+      assert(Buffer.isBuffer(salt), 'salt must be a buffer')
+      assert(
+        salt.length <= 64,
+        'salt size must be no greater than 64 bytes'
+      )
+    }
+    if (encoding === 'bencode') {
+      return bencode.encode({ seq, v: value, salt }).slice(1, -1)
+    }
+    return Buffer.concat([
+      uint64be.encode(seq),
+      Buffer.from([salt.length]),
+      salt,
+      value
+    ])
   }
 }
 
