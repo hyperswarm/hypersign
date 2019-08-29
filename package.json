@@ -11,8 +11,8 @@
     "tap": "^14.5.0"
   },
   "scripts": {
-    "test": "tap  -R classic test/*.test.js  && standard --fix",
-    "cov": "tap -R classic --100 test/*.test.js",
+    "test": "tap --no-esm  -R classic test/*.test.js  && standard --fix",
+    "cov": "tap --no-esm -R classic --100 test/*.test.js",
     "ci": "standard && npm run cov"
   },
   "repository": {

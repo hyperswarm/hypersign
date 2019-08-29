@@ -38,35 +38,42 @@ test('salt string', async ({ is, throws }) => {
 test('signable', async ({ is, same }) => {
   const salt = hypersign.salt()
   const value = Buffer.from('test')
-  is(hypersign.signable(value), value)
-  is(hypersign.signable(value, { seq: 1 }), value)
+  same(
+    hypersign.signable(value),
+    Buffer.from('3:seqi01:v4:test')
+  )
+  same(
+    hypersign.signable(value, { seq: 1 }),
+    Buffer.from('3:seqi11:v4:test')
+  )
   same(
     hypersign.signable(value, { salt }),
-    Buffer.concat([Buffer.from([salt.length]), salt, value])
+    Buffer.concat([
+      Buffer.from('4:salt'),
+      Buffer.from(`${salt.length}:`),
+      salt,
+      Buffer.from('3:seqi01:v4:test')
+    ])
   )
 })
 
-test('mutable signable - salt must be a buffer', async ({ throws }) => {
+test('signable - salt must be a buffer', async ({ throws }) => {
   throws(() => hypersign.signable(Buffer.from('test'), { salt: 'no' }), 'salt must be a buffer')
 })
 
-test('mutable signable - salt size must be >= 16 bytes and <= 64 bytes', async ({ throws }) => {
-  throws(
-    () => hypersign.signable(Buffer.from('test'), { salt: Buffer.alloc(15) }),
-    'salt size must be between 16 and 64 bytes (inclusive)'
-  )
+test('signable - salt size must be no greater than 64 bytes', async ({ throws }) => {
   throws(
     () => hypersign.signable(Buffer.from('test'), { salt: Buffer.alloc(65) }),
-    'salt size must be between 16 and 64 bytes (inclusive)'
+    'salt size must be no greater than 64 bytes'
   )
 })
 
-test('mutable signable - value must be buffer', async ({ throws }) => {
+test('signable - value must be buffer', async ({ throws }) => {
   const keypair = hypersign.keypair()
   throws(() => hypersign.signable('test', { keypair }), 'Value must be a buffer')
 })
 
-test('mutable signable - value size must be <= 1000 bytes', async ({ throws }) => {
+test('signable - value size must be <= 1000 bytes', async ({ throws }) => {
   const keypair = hypersign.keypair()
   throws(
     () => hypersign.signable(Buffer.alloc(1001), { keypair }),
@@ -74,27 +81,42 @@ test('mutable signable - value size must be <= 1000 bytes', async ({ throws }) =
   )
 })
 
-test('sign', async ({ is, throws }) => {
+test('sign', async ({ is }) => {
   const keypair = hypersign.keypair()
   const { publicKey } = keypair
   const salt = hypersign.salt()
   const value = Buffer.from('test')
-  const signable = hypersign.signable(value, { salt })
   is(
-    verify(hypersign.sign(value, { keypair }), value, publicKey),
+    verify(
+      hypersign.sign(value, { keypair }),
+      hypersign.signable(value),
+      publicKey
+    ),
     true
   )
   is(
-    verify(hypersign.sign(value, { salt, keypair }), signable, publicKey),
+    verify(
+      hypersign.sign(value, { salt, keypair }),
+      hypersign.signable(value, { salt }),
+      publicKey
+    ),
+    true
+  )
+  is(
+    verify(
+      hypersign.sign(value, { seq: 2, keypair }),
+      hypersign.signable(value, { seq: 2 }),
+      publicKey
+    ),
     true
   )
 })
 
-test('mutable sign - salt must be a buffer', async ({ throws }) => {
+test('sign - salt must be a buffer', async ({ throws }) => {
   throws(() => hypersign.sign(Buffer.from('test'), { salt: 'no' }), 'salt must be a buffer')
 })
 
-test('mutable sign - salt size must be >= 16 bytes and <= 64 bytes', async ({ throws }) => {
+test('sign - salt size must be >= 16 bytes and <= 64 bytes', async ({ throws }) => {
   throws(
     () => hypersign.sign(Buffer.from('test'), { salt: Buffer.alloc(15) }),
     'salt size must be between 16 and 64 bytes (inclusive)'
@@ -105,16 +127,16 @@ test('mutable sign - salt size must be >= 16 bytes and <= 64 bytes', async ({ th
   )
 })
 
-test('mutable sign - value must be buffer', async ({ throws }) => {
+test('sign - value must be buffer', async ({ throws }) => {
   const keypair = hypersign.keypair()
   throws(() => hypersign.sign('test', { keypair }), 'Value must be a buffer')
 })
 
-test('mutable sign - options are required', async ({ throws }) => {
+test('sign - options are required', async ({ throws }) => {
   throws(() => hypersign.sign('test'), 'Options are required')
 })
 
-test('mutable sign - value size must be <= 1000 bytes', async ({ throws }) => {
+test('sign - value size must be <= 1000 bytes', async ({ throws }) => {
   const keypair = hypersign.keypair()
   throws(
     () => hypersign.sign(Buffer.alloc(1001), { keypair }),
@@ -122,14 +144,14 @@ test('mutable sign - value size must be <= 1000 bytes', async ({ throws }) => {
   )
 })
 
-test('mutable sign - keypair option is required', async ({ throws }) => {
+test('sign - keypair option is required', async ({ throws }) => {
   throws(
     () => hypersign.sign(Buffer.alloc(1001), {}),
     'keypair is required'
   )
 })
 
-test('mutable sign - keypair must have secretKey which must be a buffer', async ({ throws }) => {
+test('sign - keypair must have secretKey which must be a buffer', async ({ throws }) => {
   const keypair = hypersign.keypair()
   keypair.secretKey = 'nope'
   throws(

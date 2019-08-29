@@ -14,6 +14,10 @@ const {
 // should be less than the network MTU, normally 1400 bytes
 const VALUE_MAX_SIZE = 1000
 
+const saltSeg = Buffer.from('4:salt')
+const seqSeg = Buffer.from('3:seqi')
+const vSeg = Buffer.from('1:v')
+
 class Hypersign {
   salt (str = null, size = 32) {
     if (typeof str === 'number') {
@@ -53,16 +57,33 @@ class Hypersign {
   }
 
   signable (value, opts = {}) {
-    const { salt } = opts
+    const { salt, seq = 0 } = opts
     assert(Buffer.isBuffer(value), 'Value must be a buffer')
     assert(value.length <= VALUE_MAX_SIZE, `Value size must be <= ${VALUE_MAX_SIZE}`)
-    if (!salt) return value
-    assert(Buffer.isBuffer(salt), 'salt must be a buffer')
-    assert(
-      salt.length >= 16 && salt.length <= 64,
-      'salt size must be between 16 and 64 bytes (inclusive)'
-    )
-    return Buffer.concat([Buffer.from([salt.length]), salt, value])
+    if (salt) {
+      assert(Buffer.isBuffer(salt), 'salt must be a buffer')
+      assert(
+        salt.length <= 64,
+        'salt size must be no greater than 64 bytes'
+      )
+    }
+
+    return salt ? Buffer.concat([
+      saltSeg,
+      Buffer.from(`${salt.length}:`),
+      salt,
+      seqSeg,
+      Buffer.from(`${seq.toString()}e`),
+      vSeg,
+      Buffer.from(`${value.length}:`),
+      value
+    ]) : Buffer.concat([
+      seqSeg,
+      Buffer.from(`${seq.toString()}e`),
+      vSeg,
+      Buffer.from(`${value.length}:`),
+      value
+    ])
   }
 }
 
