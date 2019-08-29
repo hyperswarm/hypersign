@@ -73,13 +73,13 @@ class Hypersign {
       Buffer.from(`${salt.length}:`),
       salt,
       seqSeg,
-      Buffer.from(seq.toString()),
+      Buffer.from(`${seq.toString()}e`),
       vSeg,
       Buffer.from(`${value.length}:`),
       value
     ]) : Buffer.concat([
       seqSeg,
-      Buffer.from(seq.toString()),
+      Buffer.from(`${seq.toString()}e`),
       vSeg,
       Buffer.from(`${value.length}:`),
       value
