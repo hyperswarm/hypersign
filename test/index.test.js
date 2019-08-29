@@ -5,7 +5,7 @@ const {
   crypto_generichash: hash
 } = require('sodium-universal')
 const hypersign = require('../')()
-
+const bencode = require('bencode')
 test('keypair', async ({ is }) => {
   const { publicKey, secretKey } = hypersign.keypair()
   is(publicKey instanceof Buffer, true)
@@ -40,21 +40,30 @@ test('signable', async ({ is, same }) => {
   const value = Buffer.from('test')
   same(
     hypersign.signable(value),
-    Buffer.from('3:seqi01:v4:test')
+    bencode.encode({ seq: 0, v: value }).slice(1, -1)
   )
   same(
     hypersign.signable(value, { seq: 1 }),
-    Buffer.from('3:seqi11:v4:test')
+    bencode.encode({ seq: 1, v: value }).slice(1, -1)
   )
   same(
     hypersign.signable(value, { salt }),
-    Buffer.concat([
-      Buffer.from('4:salt'),
-      Buffer.from(`${salt.length}:`),
-      salt,
-      Buffer.from('3:seqi01:v4:test')
-    ])
+    bencode.encode({ salt, seq: 0, v: value }).slice(1, -1)
   )
+})
+
+test('signable - decodable with bencode', async ({ is, same }) => {
+  const salt = hypersign.salt()
+  const value = Buffer.from('test')
+  const msg = hypersign.signable(value, { salt })
+  const result = bencode.decode(
+    Buffer.concat([Buffer.from('d'), msg, Buffer.from('e')])
+  )
+  is(Buffer.isBuffer(result.salt), true)
+  is(Buffer.isBuffer(result.v), true)
+  same(result.salt, salt)
+  same(result.v, value)
+  is(result.seq, 0)
 })
 
 test('signable - salt must be a buffer', async ({ throws }) => {
