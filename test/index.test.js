@@ -173,3 +173,57 @@ test('sign - keypair must have secretKey which must be a buffer', async ({ throw
     'keypair.secretKey is required'
   )
 })
+
+test('cryptoSign - msg must be buffer', async ({ throws }) => {
+  const keypair = hypersign.keypair()
+  throws(() => hypersign.cryptoSign('test', keypair), 'msg must be a buffer')
+})
+
+test('cryptoSign - keypair is required', async ({ throws }) => {
+  throws(() => hypersign.cryptoSign('test'), 'keypair is required')
+})
+
+test('cryptoSign - keypair must have secretKey which must be a buffer', async ({ throws }) => {
+  const keypair = hypersign.keypair()
+  keypair.secretKey = 'nope'
+  throws(
+    () => hypersign.cryptoSign(Buffer.alloc(1001), { keypair }),
+    'keypair.secretKey is required'
+  )
+  delete keypair.secretKey
+  throws(
+    () => hypersign.cryptoSign(Buffer.alloc(1001), { keypair }),
+    'keypair.secretKey is required'
+  )
+})
+
+test('cryptoSign', async ({ is }) => {
+  const keypair = hypersign.keypair()
+  const { publicKey } = keypair
+  const salt = hypersign.salt()
+  const value = Buffer.from('test')
+  is(
+    verify(
+      hypersign.cryptoSign(hypersign.signable(value), keypair),
+      hypersign.signable(value),
+      publicKey
+    ),
+    true
+  )
+  is(
+    verify(
+      hypersign.cryptoSign(hypersign.signable(value, { salt }), keypair),
+      hypersign.signable(value, { salt }),
+      publicKey
+    ),
+    true
+  )
+  is(
+    verify(
+      hypersign.cryptoSign(hypersign.signable(value, { seq: 2 }), keypair),
+      hypersign.signable(value, { seq: 2 }),
+      publicKey
+    ),
+    true
+  )
+})

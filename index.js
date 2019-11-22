@@ -41,15 +41,24 @@ class Hypersign {
     return { publicKey, secretKey }
   }
 
+  cryptoSign (msg, keypair) {
+    assert(Buffer.isBuffer(msg), 'msg must be a buffer')
+    assert(keypair, 'keypair is required')
+    const { secretKey } = keypair
+    assert(Buffer.isBuffer(secretKey), 'keypair.secretKey is required')
+    const signature = Buffer.alloc(signSize)
+    sign(signature, msg, secretKey)
+    return signature
+  }
+
   sign (value, opts) {
     assert(typeof opts === 'object', 'Options are required')
     assert(Buffer.isBuffer(value), 'Value must be a buffer')
     assert(value.length <= VALUE_MAX_SIZE, `Value size must be <= ${VALUE_MAX_SIZE}`)
     const { keypair } = opts
     assert(keypair, 'keypair is required')
-    const { secretKey, publicKey } = keypair
+    const { secretKey } = keypair
     assert(Buffer.isBuffer(secretKey), 'keypair.secretKey is required')
-    assert(Buffer.isBuffer(publicKey), 'keypair.publicKey is required')
     const msg = this.signable(value, opts)
     const signature = Buffer.alloc(signSize)
     sign(signature, msg, secretKey)
