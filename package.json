@@ -3,10 +3,12 @@
   "version": "2.1.0",
   "description": "Utility methods related to public key cryptography to be used with distributed mutable storage",
   "main": "index.js",
+  "types":"index.d.ts",
   "dependencies": {
     "sodium-universal": "^2.0.0"
   },
   "devDependencies": {
+    "@types/node": "^13.11.0",
     "bencode": "^2.0.1",
     "standard": "^13.1.0",
     "tap": "^14.5.0"
