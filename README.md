@@ -27,8 +27,8 @@ Utility method for creating a random or hashed salt value.
 If called with a string the string will be hashed, to a
 generic hash of `size` length.
 
-If called without any inputs, or with a number, random 
-butes of `size` length will be
+If called without any inputs, or with a number, random
+bytes of `size` length will be returned
 
 #### `sign(value, options)`
 
@@ -43,7 +43,7 @@ Options:
 #### `signable(value, options)`
 
 Utility method which returns the exact buffer that would be signed in by `sign`. This is only needed when using a salt, otherwise it will return the same `value` passed in. This method is to facilitate out-of-band signing (e.g. hardware signing), do not pass the returned signable value into `sign`, it already uses `signable`.
-If you need to sign a value that has already been passed 
+If you need to sign a value that has already been passed
 through `signable`, use `cryptoSign`.
 
 Options:
@@ -53,7 +53,7 @@ Options:
 
 #### `cryptoSign(msg, keypair)`
 
-Utility method which can be used to create a signature using the `crypto_sign_detached` Sodium method. This only needs to be used 
+Utility method which can be used to create a signature using the `crypto_sign_detached` Sodium method. This only needs to be used
 when you *do not* need to apply encoding to `value`, `salt` and `seq`(e.g. if value and options have already been passed to `signable`).
 
 Options:
