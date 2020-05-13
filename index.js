@@ -8,7 +8,7 @@ const {
   crypto_sign_SECRETKEYBYTES: skSize,
   crypto_sign_BYTES: signSize,
   randombytes_buf: randomBytes
-} = require('sodium-universal')
+} = require('sodium-native')
 
 // VALUE_MAX_SIZE + packet overhead (i.e. the key etc.)
 // should be less than the network MTU, normally 1400 bytes
